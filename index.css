@@ -1,0 +1,218 @@
+:root {
+    --sb-track-color: hsl(210, 13%, 21%);
+    --sb-thumb-color: hsl(210, 100%, 100%, 0.3);
+    --sb-size: 8px;
+}
+
+::-webkit-scrollbar {
+    width: var(--sb-size);
+    height: var(--sb-size);
+}
+
+::-webkit-scrollbar-track {
+    background: var(--sb-track-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--sb-thumb-color);
+}
+
+@supports not selector(::-webkit-scrollbar) {
+    body {
+        scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+    }
+}
+
+* {
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    font: 1em/1.4 Poppins, sans-serif;
+    background: hsl(223, 13%, 21%);
+    color: hsl(223, 13%, 91%);
+    height: 100dvh;
+    flex-direction: column;
+}
+
+#app {
+    flex: 1;
+    background: hsl(223, 13%, 28%);
+}
+
+.timeline {
+    --aside-width: 140px;
+    --c: #0bf;
+    display: flex;
+    height: 200px;
+    overflow: scroll;
+}
+
+.aside {
+    display: flex;
+    flex-flow: column;
+    position: sticky;
+    left: 0px;
+    background: hsl(223, 13%, 21%);
+    z-index: 1;
+    height: min-content;
+}
+
+.zoom {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    height: 34px;
+    background: hsl(223, 13%, 21%);
+    display: flex;
+    gap: 0.5em;
+    align-items: center;
+
+    button {
+        flex: 1;
+        border: none;
+        color: inherit;
+        padding: 5px;
+        cursor: pointer;
+        font-size: 1.2em;
+        background-color: hsl(223, 13%, 28%);
+        outline: none;
+    }
+}
+
+.names {
+    display: flex;
+    flex-direction: column;
+}
+
+.name {
+    padding: 10px;
+    width: var(--aside-width);
+    height: 40px;
+    background: #0005;
+    margin: 5px 0;
+}
+
+.scroll {
+    position: relative;
+    flex: 1;
+}
+
+.ruler {
+    height: 34px;
+    position: sticky;
+    top: 0;
+    background:
+        /* POINTER RULER */ calc(var(--pointer-x, 0) * 1px) 24px /
+            1px no-repeat linear-gradient(90deg, #0bf, #0bf 1px, #0000 1px),
+        /* PRIMARY LINES */ 0px 24px / calc(var(--rulerAt) * 10px) 24px repeat-x
+            repeating-linear-gradient(
+                90deg,
+                #fff6,
+                #fff6 1px,
+                #0000 1px,
+                #0000 calc(var(--rulerAt) * 1px)
+            ),
+        /* SECONDARY LINES */ 0 24px / max(3px, calc(var(--rulerAt) * 10px)) 7px repeat-x
+            repeating-linear-gradient(
+                90deg,
+                #fff6,
+                #fff6 1px,
+                #0000 1px,
+                #0000 calc(10px * var(--zoom))
+            ),
+        /* FULL BACKGROUND COLOR */ hsl(223, 13%, 21%);
+}
+
+.time {
+    left: 0;
+    top: 0;
+    height: 24px;
+    width: 100%;
+    display: flex;
+}
+
+.tracks {
+    display: inline-flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 100%;
+    flex: 1;
+    background:
+        /* POINTER RULER */ calc(var(--pointer-x, 0) * 1px) 0px /
+            1px no-repeat linear-gradient(90deg, #0bf, #0bf 1px, #0000 1px),
+        /* PRIMARY LINES */ 0px 0px / calc(var(--rulerAt) * 10px) repeat-x
+            repeating-linear-gradient(
+                90deg,
+                #fff4,
+                #fff4 1px,
+                #0000 1px,
+                #0000 calc(var(--rulerAt) * 1px)
+            ),
+        /* TRACKS HORIZ. BACKGROUND */ 0px -5px / 100px 50px
+            repeating-linear-gradient(
+                0deg,
+                #0003 0px,
+                #0003 40px,
+                #0000 40px,
+                #0000 50px
+            );
+}
+
+.track {
+    display: flex;
+    align-items: center;
+    margin: 5px 0;
+    height: 40px;
+
+    &:empty::before {
+        content: "Empty track";
+        font-size: 0.8em;
+        opacity: 0.3;
+        font-style: italic;
+        margin-left: 1em;
+    }
+}
+
+.item {
+    overflow: hidden;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    font-size: 0.8em;
+    background: var(--c, hsl(210, 100%, 62%));
+    border-right: 1px solid hsl(223, 13%, 21%);
+    padding-left: 0.5em;
+    width: calc(var(--d) * var(--zoom) * 10px);
+    height: 100%;
+}
+
+#ruler-pointer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: min-content;
+    background: #0bf;
+    pointer-events: none;
+}
+
+#zoom-percent {
+    flex: 1;
+    text-align: center;
+    font-size: 0.75em;
+}
+
+#ruler-time {
+    font-size: 0.75em;
+    position: absolute;
+    translate: calc(var(--pointer-x) * 1px - 50%) 0px;
+    top: 3px;
+    color: #0bf;
+    font-weight: bold;
+    background: hsl(223, 13%, 21%);
+    padding: 1px 0.9em;
+    box-shadow: 0 0 3px hsl(223, 13%, 21%);
+}
