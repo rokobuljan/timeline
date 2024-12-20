@@ -8,9 +8,10 @@ const elNew = (tag, prop) => Object.assign(document.createElement(tag), prop);
 
 const repeat = (n, cb) => [...Array(n)].forEach((_, i) => cb(i));
 const mod = (n, m) => ((n % m) + m) % m; // Fix negative Modulo
-const clip = (min, num, max) => Math.min(Math.max(num, min), max); // clamp value to min/max
 const roundToNearest = (num, nearest) => Math.round(num / nearest) * nearest;
-const calcScaleDelta = (value, delta, factor) => value * Math.exp(delta * factor);
+const getScale = (value, delta, factor = 1.25) => delta ? delta > 0 ? value * factor : value / factor : value;
+const scaleVal = (val, toMin, toMax, fromMin, fromMax) => (toMax - toMin) * (val - fromMin) / (fromMax - fromMin) + toMin;
+
 const sec2time = (sec) => {
     let h = Math.floor(sec / 3600);
     let m = Math.floor(sec / 60) % 60;
@@ -45,14 +46,17 @@ const drawRuler = () => {
     let z = Math.round(zoom * 100);
     let everyNSec = 5;
     if (z === 100) everyNSec = 10;
+    if (z < 90) everyNSec = 20;
     if (z < 70) everyNSec = 20;
     if (z < 40) everyNSec = 30;
     if (z < 30) everyNSec = 60;
     if (z < 15) everyNSec = 90;
-    if (z < 10) everyNSec = 120;
+    if (z < 11) everyNSec = 120;
     if (z < 6) everyNSec = 240;
     if (z < 4) everyNSec = 300;
 
+    console.log(z);
+    
     const rulerAt = secPx * zoom * everyNSec;
     const scrLeft = elTimeline.scrollLeft;
     const y = scrLeft - mod(scrLeft, rulerAt);
@@ -86,12 +90,11 @@ elTimeline.addEventListener("pointermove", (evt) => {
 });
 
 const updateZoom = (delta = 0) => {
-    const zoomOld = zoom;    
-    zoom = calcScaleDelta(zoom, delta, zoomFactor);
-    zoom = zoom === 1 ? zoom : roundToNearest(zoom, 0.05); // fix Firefox repeating-linear-gradient 1px lines at tiny decinals
+    const zoomOld = zoom;
+    zoom = getScale(zoom, delta);
+    zoom = roundToNearest(zoom, 0.05); // fix Firefox repeating-linear-gradient 1px lines at tiny decimals
     zoom = Number(zoom.toFixed(2)); // fixes zoom-up calcs
-    console.log(zoomOld, zoom);
-    
+
     if (zoom < zoomMin || zoom > zoomMax) zoom = zoomOld;
     elTimeline.style.setProperty("--zoom", zoom);
     elZoomPercent.textContent = `${Math.round(zoom * 100)}%`;
